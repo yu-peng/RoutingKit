@@ -69,14 +69,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	if(junction != nullptr)
 		return true;
 
-	const char* route = tags["route"];
-	if(route && str_eq(route, "ferry"))
-		return true;
-
-	const char* ferry = tags["ferry"];
-	if(ferry && str_eq(ferry, "ferry"))
-		return true;
-
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
 	   (str_eq(public_transport, "stop_position") ||
@@ -174,14 +166,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
-		return true;
-
-	const char* route = tags["route"];
-	if(route && str_eq(route, "ferry"))
-		return true;
-
-	const char* ferry = tags["ferry"];
-	if(ferry && str_eq(ferry, "yes"))
 		return true;
 
 	const char* highway = tags["highway"];
@@ -468,14 +452,6 @@ std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::functi
 bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
-		return true;
-
-	const char* route = tags["route"];
-	if(route != nullptr && str_eq(route, "ferry"))
-		return true;
-
-	const char* ferry = tags["ferry"];
-	if(ferry != nullptr && str_eq(ferry, "ferry"))
 		return true;
 
 	const char* highway = tags["highway"];
