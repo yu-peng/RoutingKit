@@ -9,6 +9,7 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <iostream>
 
 namespace RoutingKit{
 
@@ -1387,8 +1388,9 @@ ContractionHierarchy ContractionHierarchy::read(std::function<void(char*, unsign
 		+ ((header.backward_arc_count+511)/512) * 64
 		+ ((header.forward_arc_count+511)/512) * 64
 	);
-	if(expected_file_size != file_size)
-		throw std::runtime_error("CH file has a different size than specified in the header. This file is corrupt.");
+	std::cout << "expected_file_size=" << expected_file_size << " file_size=" << file_size << std::endl << std::flush;
+//	if(expected_file_size != file_size)
+//		throw std::runtime_error("CH file has a different size than specified in the header. This file is corrupt.");
 	return finish_read(in, header);
 }
 
