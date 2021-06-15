@@ -68,7 +68,15 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
+/*
+	const char* route = tags["route"];
+	if(route && str_eq(route, "ferry"))
+		return true;
 
+	const char* ferry = tags["ferry"];
+	if(ferry && str_eq(ferry, "ferry"))
+		return true;
+*/
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
 	   (str_eq(public_transport, "stop_position") ||
@@ -116,7 +124,22 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	if(crossing != nullptr && str_eq(crossing, "no"))
 		return false;
 
+	const char* foot = tags["foot"];
+	if(foot){
+		if(
+			!str_eq(foot, "yes") &&
+			!str_eq(foot, "permissive") &&
+			!str_eq(foot, "designated") &&
+			!str_eq(foot, "destination") &&
+			!str_eq(foot, "use_sidepath")
+		){
+			return false;
+		}
+	}
+
 	if(
+		str_eq(highway, "primary") ||
+		str_eq(highway, "primary_link") ||
 		str_eq(highway, "secondary") ||
 		str_eq(highway, "tertiary") ||
 		str_eq(highway, "unclassified") ||
@@ -133,6 +156,7 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "cycleway") ||
 		str_eq(highway, "bridleway") ||
 		str_eq(highway, "pedestrian") ||
+		str_eq(highway, "corridor") ||
 		str_eq(highway, "escape") ||
 		str_eq(highway, "steps") ||
 		str_eq(highway, "crossing") ||
@@ -143,6 +167,14 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	)
 		return true;
 
+	const char* sidewalk = tags["sidewalk"];
+	if(sidewalk != nullptr &&
+		(str_eq(sidewalk, "both") ||
+		str_eq(sidewalk, "right") ||
+		str_eq(sidewalk, "left") ||
+		str_eq(sidewalk, "yes"))
+	)
+		return true;
 
 	if(
 		str_eq(highway, "motorway") ||
@@ -150,8 +182,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "motorway_junction") ||
 		str_eq(highway, "trunk") ||
 		str_eq(highway, "trunk_link") ||
-		str_eq(highway, "primary") ||
-		str_eq(highway, "primary_link") ||
 		str_eq(highway, "construction") ||
 		str_eq(highway, "bus_guideway") ||
 		str_eq(highway, "raceway") ||
@@ -167,7 +197,15 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
+/*
+	const char* route = tags["route"];
+	if(route && str_eq(route, "ferry"))
+		return true;
 
+	const char* ferry = tags["ferry"];
+	if(ferry && str_eq(ferry, "yes"))
+		return true;
+*/
 	const char* highway = tags["highway"];
 	if(highway == nullptr)
 		return false;
@@ -293,7 +331,7 @@ namespace{
 
 		if(str_eq(maxspeed, "de:rural") || str_eq(maxspeed, "at:rural") || str_eq(maxspeed, "ro:rural") || str_eq(maxspeed, "rural"))
 			return 100;
-		if(str_eq(maxspeed, "ru:rural") || str_eq(maxspeed, "fr:rural") || str_eq(maxspeed, "ua:rural"))
+		if(str_eq(maxspeed, "ru:rural") || str_eq(maxspeed, "ua:rural"))
 			return 90;
 
 		if(str_eq(maxspeed, "ru:motorway"))
@@ -306,11 +344,11 @@ namespace{
 
 		if(str_eq(maxspeed, "ro:trunk"))
 			return 100;
-		if(str_eq(maxspeed, "dk:rural") || str_eq(maxspeed, "ch:rural"))
+		if(str_eq(maxspeed, "dk:rural") || str_eq(maxspeed, "ch:rural") || str_eq(maxspeed, "fr:rural"))
 			return 80;
 		if(str_eq(maxspeed, "it:rural") || str_eq(maxspeed, "hu:rural"))
 			return 90;
-		if(str_eq(maxspeed, "de:zone:30"))
+		if(str_eq(maxspeed, "de:zone:30") || str_eq(maxspeed, "de:zone30"))
 			return 30;
 
 
@@ -398,9 +436,9 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		if(str_eq(highway, "living_street"))
 			return 10;
 		if(str_eq(highway, "service"))
-			return 1;
+			return 8;
 		if(str_eq(highway, "track"))
-			return 1;
+			return 8;
 		if(str_eq(highway, "ferry"))
 			return 5;
 	}
@@ -453,7 +491,15 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
+/*
+	const char* route = tags["route"];
+	if(route != nullptr && str_eq(route, "ferry"))
+		return true;
 
+	const char* ferry = tags["ferry"];
+	if(ferry != nullptr && str_eq(ferry, "ferry"))
+		return true;
+*/
 	const char* highway = tags["highway"];
 	if(highway == nullptr)
 		return false;
@@ -643,11 +689,31 @@ void decode_osm_car_turn_restrictions(
 
 	OSMTurnRestrictionCategory restriction_type;
 
+	int direction_offset;
+
 	if(starts_with("only_", restriction)) {
 		restriction_type = OSMTurnRestrictionCategory::mandatory;
+		direction_offset = 5;
 	} else if(starts_with("no_", restriction)) {
 		restriction_type = OSMTurnRestrictionCategory::prohibitive;
+		direction_offset = 3;
 	} else {
+		if(log_message)
+			log_message("Unknown OSM turn restriction with ID "+std::to_string(osm_relation_id)+" and value \""+restriction+"\", ignoring restriction");
+		return;
+	}
+
+	OSMTurnDirection turn_direction;
+
+	if(str_eq("left_turn", restriction+direction_offset)){
+		turn_direction = OSMTurnDirection::left_turn;
+	} else if(str_eq("right_turn", restriction+direction_offset)) {
+		turn_direction = OSMTurnDirection::right_turn;
+	} else if(str_eq("straight_on", restriction+direction_offset)) {
+		turn_direction = OSMTurnDirection::straight_on;
+	} else if(str_eq("u_turn", restriction+direction_offset)) {
+		turn_direction = OSMTurnDirection::u_turn;
+	}else{
 		if(log_message)
 			log_message("Unknown OSM turn restriction with ID "+std::to_string(osm_relation_id)+" and value \""+restriction+"\", ignoring restriction");
 		return;
@@ -749,9 +815,9 @@ void decode_osm_car_turn_restrictions(
 		return;
 	}
 
-	for(unsigned from_member:from_member_list)
-		for(unsigned to_member:to_member_list)
-			on_new_turn_restriction(OSMTurnRestriction{osm_relation_id, restriction_type, member_list[from_member].id, via_node, member_list[to_member].id});
+//	for(unsigned from_member:from_member_list)
+//		for(unsigned to_member:to_member_list)
+//			on_new_turn_restriction(OSMTurnRestriction{osm_relation_id, restriction_type, turn_direction, member_list[from_member].id, via_node, member_list[to_member].id});
 }
 
 } // RoutingKit
