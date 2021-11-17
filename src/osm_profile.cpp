@@ -220,7 +220,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 
 	const char*access = tags["access"];
 	if(access){
-		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
+		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "private") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
 			return false;
 	}
 
@@ -422,11 +422,11 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		if(str_eq(highway, "primary_link"))
 			return 30;
 		if(str_eq(highway, "secondary"))
-			return 55;
+			return 48;
 		if(str_eq(highway, "secondary_link"))
 			return 25;
 		if(str_eq(highway, "tertiary"))
-			return 40;
+			return 35;
 		if(str_eq(highway, "tertiary_link"))
 			return 20;
 		if(str_eq(highway, "unclassified"))
@@ -436,7 +436,7 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		if(str_eq(highway, "living_street"))
 			return 10;
 		if(str_eq(highway, "service"))
-			return 8;
+			return 15;
 		if(str_eq(highway, "track"))
 			return 8;
 		if(str_eq(highway, "ferry"))
@@ -469,6 +469,64 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		log_message("Warning: OSM way "+std::to_string(osm_way_id) +" has an unrecognized \"maxspeed\" tag of \""+maxspeed+"\" and no \"highway\" tag and an no junction tag -> assuming 50km/h.");
 	return 50;
 }
+
+
+unsigned get_osm_way_penalty(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+    // the unit is millisecond
+	auto highway = tags["highway"];
+	if(highway){
+		if(str_eq(highway, "motorway"))
+			return 0;
+		if(str_eq(highway, "motorway_link"))
+			return 0;
+		if(str_eq(highway, "trunk"))
+			return 0;
+		if(str_eq(highway, "trunk_link"))
+			return 0;
+		if(str_eq(highway, "primary"))
+			return 5000;
+		if(str_eq(highway, "primary_link"))
+			return 5000;
+		if(str_eq(highway, "secondary"))
+			return 10000;
+		if(str_eq(highway, "secondary_link"))
+			return 10000;
+		if(str_eq(highway, "tertiary"))
+			return 15000;
+		if(str_eq(highway, "tertiary_link"))
+			return 15000;
+		if(str_eq(highway, "unclassified"))
+			return 20000;
+		if(str_eq(highway, "residential"))
+			return 20000;
+		if(str_eq(highway, "living_street"))
+			return 20000;
+		if(str_eq(highway, "service"))
+			return 0;
+		if(str_eq(highway, "track"))
+			return 0;
+		if(str_eq(highway, "ferry"))
+			return 0;
+	}
+/*
+	auto junction = tags["junction"];
+	if(junction){
+		return 20000;
+	}
+
+	auto route = tags["route"];
+	if(route && str_eq(route, "ferry")) {
+		return 0;
+	}
+
+	auto ferry = tags["ferry"];
+	if(ferry) {
+		return 0;
+	}
+*/
+	return 0;
+}
+
 
 std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 	auto

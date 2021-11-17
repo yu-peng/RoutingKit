@@ -26,12 +26,14 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 
 	unsigned routing_way_count = mapping.is_routing_way.population_count();
 	std::vector<unsigned>way_speed(routing_way_count);
+	std::vector<unsigned>way_penalty(routing_way_count);
 
 	auto routing_graph = load_osm_routing_graph_from_pbf(
 		pbf_file,
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
 			way_speed[routing_way_id] = get_osm_way_speed(osm_way_id, way_tags, log_message);
+            way_penalty[routing_way_id] = get_osm_way_penalty(osm_way_id, way_tags, log_message);
 			return get_osm_car_direction_category(osm_way_id, way_tags, log_message);
 		},
 		[&](uint64_t osm_relation_id, const std::vector<OSMRelationMember>&member_list, const TagMap&tags, std::function<void(OSMTurnRestriction)>on_new_restriction){
@@ -54,6 +56,7 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 		ret.travel_time[a] *= 18000;
 		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
 		ret.travel_time[a] /= 5;
+        ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	ret.forbidden_turn_from_arc = std::move(routing_graph.forbidden_turn_from_arc);
