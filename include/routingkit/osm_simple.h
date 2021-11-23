@@ -16,6 +16,9 @@ struct SimpleOSMCarRoutingGraph{
 	std::vector<float>longitude;
 	std::vector<unsigned>forbidden_turn_from_arc;
 	std::vector<unsigned>forbidden_turn_to_arc;
+    std::vector<unsigned>polyline_id;
+    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
 		return first_out.size()-1;
@@ -37,9 +40,13 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 struct SimpleOSMPedestrianRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
+	std::vector<unsigned>travel_time;
 	std::vector<unsigned>geo_distance;
 	std::vector<float>latitude;
 	std::vector<float>longitude;
+    std::vector<unsigned>polyline_id;
+    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
 		return first_out.size()-1;
@@ -61,10 +68,14 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 struct SimpleOSMBicycleRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
+	std::vector<unsigned>travel_time;
 	std::vector<unsigned>geo_distance;
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<unsigned char>arc_comfort_level;
+    std::vector<unsigned>polyline_id;
+    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
 		return first_out.size()-1;
