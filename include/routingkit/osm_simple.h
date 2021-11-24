@@ -16,8 +16,8 @@ struct SimpleOSMCarRoutingGraph{
 	std::vector<float>longitude;
 	std::vector<unsigned>forbidden_turn_from_arc;
 	std::vector<unsigned>forbidden_turn_to_arc;
-    std::vector<unsigned>polyline_id;
-    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<unsigned>polyline_id;
+	std::vector<std::vector<float>>polyline_latitude;
 	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
@@ -44,8 +44,8 @@ struct SimpleOSMPedestrianRoutingGraph{
 	std::vector<unsigned>geo_distance;
 	std::vector<float>latitude;
 	std::vector<float>longitude;
-    std::vector<unsigned>polyline_id;
-    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<unsigned>polyline_id;
+	std::vector<std::vector<float>>polyline_latitude;
 	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
@@ -73,8 +73,8 @@ struct SimpleOSMBicycleRoutingGraph{
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<unsigned char>arc_comfort_level;
-    std::vector<unsigned>polyline_id;
-    std::vector<std::vector<float>>polyline_latitude;
+	std::vector<unsigned>polyline_id;
+	std::vector<std::vector<float>>polyline_latitude;
 	std::vector<std::vector<float>>polyline_longitude;
 
 	unsigned node_count() const {
