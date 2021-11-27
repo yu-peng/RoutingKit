@@ -39,7 +39,9 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 		[&](uint64_t osm_relation_id, const std::vector<OSMRelationMember>&member_list, const TagMap&tags, std::function<void(OSMTurnRestriction)>on_new_restriction){
 			return decode_osm_car_turn_restrictions(osm_relation_id, member_list, tags, on_new_restriction, log_message);
 		},
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	mapping = OSMRoutingIDMapping(); // release memory
@@ -95,7 +97,9 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 			return OSMWayDirectionCategory::open_in_both;
 		},
 		nullptr,
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	mapping = OSMRoutingIDMapping(); // release memory
@@ -150,7 +154,9 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 			return get_osm_bicycle_direction_category(osm_way_id, way_tags, log_message);
 		},
 		nullptr,
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	unsigned arc_count = routing_graph.head.size();

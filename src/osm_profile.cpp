@@ -80,9 +80,9 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
 	   (str_eq(public_transport, "stop_position") ||
-		str_eq(public_transport, "platform") ||
-		str_eq(public_transport, "stop_area") ||
-		str_eq(public_transport, "station")
+	    str_eq(public_transport, "platform") ||
+	    str_eq(public_transport, "stop_area") ||
+	    str_eq(public_transport, "station")
 	   )
 	  ) {
 		return true;
@@ -91,10 +91,10 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	const char* railway = tags["railway"];
 	if(railway != nullptr &&
 	   (str_eq(railway, "halt") ||
-		str_eq(railway, "platform") ||
-		str_eq(railway, "subway_entrance") ||
-		str_eq(railway, "station") ||
-		str_eq(railway, "tram_stop")
+	    str_eq(railway, "platform") ||
+	    str_eq(railway, "subway_entrance") ||
+	    str_eq(railway, "station") ||
+	    str_eq(railway, "tram_stop")
 	   )
 	  ) {
 		return true;

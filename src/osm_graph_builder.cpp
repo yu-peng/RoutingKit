@@ -224,6 +224,7 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 		log_message("Scanning OSM PBF data to load routing arcs");
 		timer = -get_micro_time();
 	}
+
 	ordered_read_osm_pbf(
 		pbf_file,
 		[&](uint64_t osm_node_id, double lat, double lon, const TagMap&tags){
@@ -242,7 +243,6 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 					unsigned routing_id_of_last_routing_node = routing_node.to_local(node_list[0]);
 
 					double dist_since_last_routing_node = 0;
-
 					for(unsigned i=1; i<node_list.size(); ++i){
 						unsigned modelling_id_of_current_node = modelling_node.to_local(node_list[i]);
 
@@ -250,6 +250,7 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 							latitude[modelling_id_of_current_node], longitude[modelling_id_of_current_node],
 							latitude[modelling_id_of_previous_modelling_node], longitude[modelling_id_of_previous_modelling_node]
 						);
+
 						if(geometry_to_be_extracted == OSMRoadGeometry::uncompressed || geometry_to_be_extracted == OSMRoadGeometry::first_and_last){
 							modelling_node_latitude.push_back(latitude[modelling_id_of_current_node]);
 							modelling_node_longitude.push_back(longitude[modelling_id_of_current_node]);
