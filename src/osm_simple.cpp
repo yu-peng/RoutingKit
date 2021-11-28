@@ -25,21 +25,23 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	);
 
 	unsigned routing_way_count = mapping.is_routing_way.population_count();
-	std::vector<unsigned>way_speed(routing_way_count);
-	std::vector<unsigned>way_penalty(routing_way_count);
+	std::vector<unsigned> way_speed(routing_way_count);
+	std::vector<unsigned> way_penalty(routing_way_count);
 
 	auto routing_graph = load_osm_routing_graph_from_pbf(
 		pbf_file,
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
 			way_speed[routing_way_id] = get_osm_way_speed(osm_way_id, way_tags, log_message);
-            way_penalty[routing_way_id] = get_osm_way_penalty(osm_way_id, way_tags, log_message);
+			way_penalty[routing_way_id] = get_osm_way_penalty(osm_way_id, way_tags, log_message);
 			return get_osm_car_direction_category(osm_way_id, way_tags, log_message);
 		},
 		[&](uint64_t osm_relation_id, const std::vector<OSMRelationMember>&member_list, const TagMap&tags, std::function<void(OSMTurnRestriction)>on_new_restriction){
 			return decode_osm_car_turn_restrictions(osm_relation_id, member_list, tags, on_new_restriction, log_message);
 		},
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	mapping = OSMRoutingIDMapping(); // release memory
@@ -50,13 +52,16 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	ret.geo_distance = std::move(routing_graph.geo_distance);
 	ret.latitude = std::move(routing_graph.latitude);
 	ret.longitude = std::move(routing_graph.longitude);
+	ret.polyline_id = std::move(routing_graph.polyline_id);
+	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
+	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
 
 	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){
 		ret.travel_time[a] *= 18000;
 		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
 		ret.travel_time[a] /= 5;
-        ret.travel_time[a] += way_penalty[routing_graph.way[a]];
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	ret.forbidden_turn_from_arc = std::move(routing_graph.forbidden_turn_from_arc);
@@ -82,14 +87,19 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 		all_modelling_nodes_are_routing_nodes
 	);
 
+	unsigned routing_way_count = mapping.is_routing_way.population_count();
+	std::vector<unsigned> way_speed(routing_way_count);
 	auto routing_graph = load_osm_routing_graph_from_pbf(
 		pbf_file,
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
+			way_speed[routing_way_id] = get_osm_way_pedestrian_speed(osm_way_id, way_tags, log_message);
 			return OSMWayDirectionCategory::open_in_both;
 		},
 		nullptr,
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	mapping = OSMRoutingIDMapping(); // release memory
@@ -100,6 +110,16 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 	ret.geo_distance = std::move(routing_graph.geo_distance);
 	ret.latitude = std::move(routing_graph.latitude);
 	ret.longitude = std::move(routing_graph.longitude);
+	ret.polyline_id = std::move(routing_graph.polyline_id);
+	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
+	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
+
+   	ret.travel_time = ret.geo_distance;
+	for(unsigned a=0; a<ret.travel_time.size(); ++a){
+		ret.travel_time[a] *= 18000;
+		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
+		ret.travel_time[a] /= 5;
+	}
 
 	return ret;
 }
@@ -122,18 +142,21 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 	);
 
 	unsigned routing_way_count = mapping.is_routing_way.population_count();
-
+	std::vector<unsigned> way_speed(routing_way_count);
 	std::vector<unsigned char> comfort_level(routing_way_count, false);
 
 	auto routing_graph = load_osm_routing_graph_from_pbf(
 		pbf_file,
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
+			way_speed[routing_way_id] = get_osm_way_bicycle_speed(osm_way_id, way_tags, log_message);
 			comfort_level[routing_way_id] = get_osm_way_bicycle_comfort_level(osm_way_id, way_tags, log_message);
 			return get_osm_bicycle_direction_category(osm_way_id, way_tags, log_message);
 		},
 		nullptr,
-		log_message
+		log_message,
+		false,
+		OSMRoadGeometry::uncompressed
 	);
 
 	unsigned arc_count = routing_graph.head.size();
@@ -146,10 +169,20 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 	ret.geo_distance = std::move(routing_graph.geo_distance);
 	ret.latitude = std::move(routing_graph.latitude);
 	ret.longitude = std::move(routing_graph.longitude);
+	ret.polyline_id = std::move(routing_graph.polyline_id);
+	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
+	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
 
 	ret.arc_comfort_level.resize(arc_count);
 	for(unsigned a=0; a<arc_count; ++a)
 		ret.arc_comfort_level[a] = comfort_level[routing_graph.way[a]];
+
+   	ret.travel_time = ret.geo_distance;
+	for(unsigned a=0; a<ret.travel_time.size(); ++a){
+		ret.travel_time[a] *= 18000;
+		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
+		ret.travel_time[a] /= 5;
+	}
 
 	return ret;
 }

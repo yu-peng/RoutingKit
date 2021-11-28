@@ -190,6 +190,13 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 				routing_graph.modelling_node_longitude.push_back(modelling_node_longitude.back());
 			}
 		}
+		if (!modelling_node_latitude.empty()) {
+			routing_graph.polyline_id.push_back(routing_graph.polyline_latitude.size());
+			routing_graph.polyline_latitude.push_back(modelling_node_latitude);
+			routing_graph.polyline_longitude.push_back(modelling_node_longitude);
+		} else {
+			routing_graph.polyline_id.push_back(invalid_id);
+		}
 	};
 
 	std::vector<OSMTurnRestriction>osm_turn_restrictions;
@@ -217,6 +224,7 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 		log_message("Scanning OSM PBF data to load routing arcs");
 		timer = -get_micro_time();
 	}
+
 	ordered_read_osm_pbf(
 		pbf_file,
 		[&](uint64_t osm_node_id, double lat, double lon, const TagMap&tags){
@@ -235,7 +243,6 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 					unsigned routing_id_of_last_routing_node = routing_node.to_local(node_list[0]);
 
 					double dist_since_last_routing_node = 0;
-
 					for(unsigned i=1; i<node_list.size(); ++i){
 						unsigned modelling_id_of_current_node = modelling_node.to_local(node_list[i]);
 
@@ -243,6 +250,7 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 							latitude[modelling_id_of_current_node], longitude[modelling_id_of_current_node],
 							latitude[modelling_id_of_previous_modelling_node], longitude[modelling_id_of_previous_modelling_node]
 						);
+
 						if(geometry_to_be_extracted == OSMRoadGeometry::uncompressed || geometry_to_be_extracted == OSMRoadGeometry::first_and_last){
 							modelling_node_latitude.push_back(latitude[modelling_id_of_current_node]);
 							modelling_node_longitude.push_back(longitude[modelling_id_of_current_node]);
@@ -302,6 +310,7 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 		auto p = compute_inverse_sort_permutation_first_by_tail_then_by_head_and_apply_sort_to_tail(node_count, tail, routing_graph.head);
 		routing_graph.head = apply_inverse_permutation(p, std::move(routing_graph.head));
 		routing_graph.geo_distance = apply_inverse_permutation(p, std::move(routing_graph.geo_distance));
+		routing_graph.polyline_id = apply_inverse_permutation(p, std::move(routing_graph.polyline_id));
 		routing_graph.way = apply_inverse_permutation(p, std::move(routing_graph.way));
 		routing_graph.is_arc_antiparallel_to_way = apply_inverse_permutation(p, std::move(routing_graph.is_arc_antiparallel_to_way));
 		routing_graph.first_out = invert_vector(tail, node_count);
