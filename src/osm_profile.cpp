@@ -100,6 +100,19 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		return true;
 	}
 
+	const char* cycleway = tags["cycleway"];
+	if(cycleway != nullptr)
+		return true;
+	const char* cycleway_left = tags["cycleway:left"];
+	if(cycleway_left != nullptr)
+		return true;
+	const char* cycleway_right = tags["cycleway:right"];
+	if(cycleway_right != nullptr)
+		return true;
+	const char* cycleway_both = tags["cycleway:both"];
+	if(cycleway_both != nullptr)
+		return true;
+
 	const char* highway = tags["highway"];
 	if(highway == nullptr)
 		return false;
@@ -144,7 +157,7 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "tertiary") ||
 		str_eq(highway, "unclassified") ||
 		str_eq(highway, "residential") ||
-		str_eq(highway, "service") ||
+	/*	str_eq(highway, "service") ||   */
 		str_eq(highway, "secondary_link") ||
 		str_eq(highway, "tertiary_link") ||
 		str_eq(highway, "living_street") ||
@@ -279,7 +292,6 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 			str_eq(highway, "tertiary") ||
 			str_eq(highway, "unclassified") ||
 			str_eq(highway, "residential") ||
-			str_eq(highway, "service") ||
 			str_eq(highway, "secondary_link") ||
 			str_eq(highway, "tertiary_link") ||
 			str_eq(highway, "living_street") ||
