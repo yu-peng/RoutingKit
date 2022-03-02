@@ -117,6 +117,25 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	if(highway == nullptr)
 		return false;
 
+	const char* crossing = tags["crossing"];
+	if(crossing != nullptr && str_eq(crossing, "no"))
+		return false;
+
+	const char* foot = tags["foot"];
+	if(foot){
+		if(
+			str_eq(foot, "yes") ||
+			str_eq(foot, "permissive") ||
+			str_eq(foot, "designated") ||
+			str_eq(foot, "destination") ||
+			str_eq(foot, "use_sidepath")
+		){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	const char*access = tags["access"];
 	if(access){
 		if(
@@ -128,23 +147,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 			!str_eq(access, "agricultural") &&
 			!str_eq(access, "forestry") &&
 			!str_eq(access, "public")
-		){
-			return false;
-		}
-	}
-
-	const char* crossing = tags["crossing"];
-	if(crossing != nullptr && str_eq(crossing, "no"))
-		return false;
-
-	const char* foot = tags["foot"];
-	if(foot){
-		if(
-			!str_eq(foot, "yes") &&
-			!str_eq(foot, "permissive") &&
-			!str_eq(foot, "designated") &&
-			!str_eq(foot, "destination") &&
-			!str_eq(foot, "use_sidepath")
 		){
 			return false;
 		}
@@ -676,9 +678,22 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 	if(highway == nullptr)
 		return false;
 
-
 	if(str_eq(highway, "proposed"))
 		return false;
+
+	const char*bicycle = tags["bicycle"];
+	if(bicycle){
+		if(
+			str_eq(bicycle, "yes") ||
+			str_eq(bicycle, "designated") ||
+			str_eq(bicycle, "permissive") ||
+			str_eq(bicycle, "use_sidepath")
+		){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	const char*access = tags["access"];
 	if(access){
@@ -695,10 +710,6 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 			return false;
 		}
 	}
-
-	const char*bicycle = tags["bicycle"];
-	if(bicycle && (str_eq(bicycle, "no") || str_eq(bicycle, "use_sidepath")))
-		return false;
 
 	// if a cycleway is specified we can be sure
 	// that the highway will be used in a direction
