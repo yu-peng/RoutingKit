@@ -191,6 +191,13 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	)
 		return true;
 
+	const char* service = tags["service"];
+	if(service != nullptr &&
+		(str_eq(service, "parking_aisle") ||
+		str_eq(service, "driveway"))
+	)
+		return true;
+
 	if(
 		str_eq(highway, "motorway") ||
 		str_eq(highway, "motorway_link") ||
@@ -341,7 +348,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 
 	const char*access = tags["access"];
 	if(access){
-		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "private") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
+		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
 			return false;
 	}
 
