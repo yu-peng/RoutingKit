@@ -614,9 +614,9 @@ unsigned get_osm_way_penalty(uint64_t osm_way_id, const TagMap&tags, std::functi
 		if(str_eq(highway, "primary_link"))
 			return 1000;
 		if(str_eq(highway, "secondary"))
-			return 2000;
+			return 1000;
 		if(str_eq(highway, "secondary_link"))
-			return 2000;
+			return 1000;
 		if(str_eq(highway, "tertiary"))
 			return 3000;
 		if(str_eq(highway, "tertiary_link"))
