@@ -778,7 +778,7 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 unsigned get_osm_way_bicycle_speed(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
-		return 15;
+		return 10;
 
 	const char*access = tags["access"];
 	if(access){
@@ -792,7 +792,7 @@ unsigned get_osm_way_bicycle_speed(uint64_t osm_way_id, const TagMap&tags, std::
 			!str_eq(access, "forestry") &&
 			!str_eq(access, "public")
 		){
-			return 15;
+			return 12;
 		}
 	}
 
@@ -814,34 +814,15 @@ unsigned get_osm_way_bicycle_speed(uint64_t osm_way_id, const TagMap&tags, std::
 	const char* highway = tags["highway"];
 	if(highway) {
 		if(
-			str_eq(highway, "secondary") ||
-			str_eq(highway, "tertiary") ||
-			str_eq(highway, "unclassified") ||
-			str_eq(highway, "residential") ||
-			str_eq(highway, "service") ||
-			str_eq(highway, "secondary_link") ||
-			str_eq(highway, "tertiary_link") ||
-			str_eq(highway, "living_street") ||
-			str_eq(highway, "residential") ||
-			str_eq(highway, "track") ||
 			str_eq(highway, "bicycle_road") ||
-			str_eq(highway, "primary") ||
-			str_eq(highway, "primary_link") ||
-			str_eq(highway, "path") ||
-			str_eq(highway, "footway") ||
-			str_eq(highway, "cycleway") ||
-			str_eq(highway, "bridleway") ||
-			str_eq(highway, "pedestrian") ||
-			str_eq(highway, "crossing") ||
-			str_eq(highway, "escape") ||
-			str_eq(highway, "steps") ||
-			str_eq(highway, "ferry") ||
-			str_eq(highway, "proposed")
+			str_eq(highway, "cycleway")
 		)
+			return 15;
+		else
 			return 12;
 	}
 
-	return 15;
+	return 12;
 }
 
 OSMWayDirectionCategory get_osm_bicycle_direction_category(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
