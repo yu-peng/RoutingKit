@@ -322,6 +322,11 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 }
 
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+
+	if (osm_way_id == 432998478) {
+		return false;
+	}
+
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
@@ -348,7 +353,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 
 	const char*access = tags["access"];
 	if(access){
-		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
+		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "private")|| str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
 			return false;
 	}
 
@@ -545,15 +550,15 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		if(str_eq(highway, "trunk_link"))
 			return 40;
 		if(str_eq(highway, "primary"))
-			return 65;
+			return 70;
 		if(str_eq(highway, "primary_link"))
 			return 30;
 		if(str_eq(highway, "secondary"))
-			return 48;
+			return 60;
 		if(str_eq(highway, "secondary_link"))
 			return 25;
 		if(str_eq(highway, "tertiary"))
-			return 35;
+			return 30;
 		if(str_eq(highway, "tertiary_link"))
 			return 20;
 		if(str_eq(highway, "unclassified"))
@@ -610,23 +615,23 @@ unsigned get_osm_way_penalty(uint64_t osm_way_id, const TagMap&tags, std::functi
 		if(str_eq(highway, "trunk_link"))
 			return 0;
 		if(str_eq(highway, "primary"))
-			return 1000;
+			return 500;
 		if(str_eq(highway, "primary_link"))
-			return 1000;
+			return 500;
 		if(str_eq(highway, "secondary"))
-			return 1000;
+			return 2500;
 		if(str_eq(highway, "secondary_link"))
-			return 1000;
+			return 2500;
 		if(str_eq(highway, "tertiary"))
-			return 2000;
+			return 4000;
 		if(str_eq(highway, "tertiary_link"))
-			return 2000;
+			return 4000;
 		if(str_eq(highway, "unclassified"))
-			return 3000;
+			return 4000;
 		if(str_eq(highway, "residential"))
-			return 3000;
+			return 4000;
 		if(str_eq(highway, "living_street"))
-			return 3000;
+			return 4000;
 		if(str_eq(highway, "service"))
 			return 0;
 		if(str_eq(highway, "track"))
