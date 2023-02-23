@@ -76,7 +76,7 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	const char* ferry = tags["ferry"];
 	if(ferry && str_eq(ferry, "ferry"))
 		return true;
-*/
+
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
 	   (str_eq(public_transport, "stop_position") ||
@@ -99,6 +99,7 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 	  ) {
 		return true;
 	}
+*/
 
 	const char* cycleway = tags["cycleway"];
 	if(cycleway != nullptr)
@@ -323,7 +324,7 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 
-	if (osm_way_id == 432998478) {
+	if (osm_way_id == 432998478 || osm_way_id == 35820581 ) {
 		return false;
 	}
 
@@ -353,7 +354,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 
 	const char*access = tags["access"];
 	if(access){
-		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "private")|| str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination")))
+		if(!(str_eq(access, "yes") || str_eq(access, "permissive") || str_eq(access, "delivery")|| str_eq(access, "designated") || str_eq(access, "destination") || str_eq(access, "customers")))
 			return false;
 	}
 
@@ -515,6 +516,7 @@ namespace{
 
 unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 	auto maxspeed = tags["maxspeed"];
+	auto ref = tags["ref"];
 	if(maxspeed != nullptr && !str_eq(maxspeed, "unposted")){
 		char lower_case_maxspeed[1024];
 		copy_str_and_make_lower_case(maxspeed, lower_case_maxspeed, sizeof(lower_case_maxspeed)-1);
@@ -534,6 +536,10 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 				log_message("Warning: OSM way "+std::to_string(osm_way_id)+" has speed 0 km/h, setting it to 1 km/h");
 		}
 
+		if(speed > 85 && ref != nullptr && str_eq(ref, "TF-1")){
+			speed = 85;
+		}
+
 		if(speed != inf_weight)
 			return speed;
 
@@ -549,8 +555,13 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 			return 85;
 		if(str_eq(highway, "trunk_link"))
 			return 40;
-		if(str_eq(highway, "primary"))
-			return 70;
+		if(str_eq(highway, "primary")) {
+			if(ref != nullptr && str_eq(ref, "TF-47")){
+				return 50;
+			} else {
+                return 70;
+            }
+        }
 		if(str_eq(highway, "primary_link"))
 			return 30;
 		if(str_eq(highway, "secondary"))
@@ -558,7 +569,7 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		if(str_eq(highway, "secondary_link"))
 			return 25;
 		if(str_eq(highway, "tertiary"))
-			return 30;
+			return 40;
 		if(str_eq(highway, "tertiary_link"))
 			return 20;
 		if(str_eq(highway, "unclassified"))
