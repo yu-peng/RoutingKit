@@ -55,6 +55,8 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	ret.polyline_id = std::move(routing_graph.polyline_id);
 	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
 	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
+	ret.is_arc_antiparallel_to_way = std::move(routing_graph.is_arc_antiparallel_to_way);
+	ret.osm_way_id = std::move(routing_graph.osm_way_id);
 
 	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){

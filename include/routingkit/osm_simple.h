@@ -19,6 +19,8 @@ struct SimpleOSMCarRoutingGraph{
 	std::vector<unsigned>polyline_id;
 	std::vector<std::vector<float>>polyline_latitude;
 	std::vector<std::vector<float>>polyline_longitude;
+	std::vector<bool>is_arc_antiparallel_to_way;
+	std::vector<uint64_t>osm_way_id;
 
 	unsigned node_count() const {
 		return first_out.size()-1;
