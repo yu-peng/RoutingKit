@@ -161,13 +161,14 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 	auto on_new_arc = [&](
 		unsigned x, unsigned y, unsigned dist, unsigned routing_way_id, bool is_antiparallel_to_way,
 		const std::vector<float>&modelling_node_latitude,
-		const std::vector<float>&modelling_node_longitude)
+		const std::vector<float>&modelling_node_longitude, uint64_t osm_way_id)
 	{
 		tail.push_back(x);
 		routing_graph.head.push_back(y);
 		routing_graph.geo_distance.push_back(dist);
 		routing_graph.way.push_back(routing_way_id);
 		routing_graph.is_arc_antiparallel_to_way.push_back(is_antiparallel_to_way);
+		routing_graph.osm_way_id.push_back(osm_way_id);
 		if(geometry_to_be_extracted == OSMRoadGeometry::uncompressed){
 			routing_graph.first_modelling_node.push_back(routing_graph.modelling_node_latitude.size());
 			routing_graph.modelling_node_latitude.insert(
@@ -268,15 +269,15 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 
 							switch(dir){
 							case OSMWayDirectionCategory::only_open_forwards:
-								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node, routing_way_id, false, modelling_node_latitude, modelling_node_longitude);
+								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node, routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id);
 								break;
 							case OSMWayDirectionCategory::open_in_both:
-								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node, routing_way_id, false, modelling_node_latitude, modelling_node_longitude);
+								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node, routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id);
 								// no break
 							case OSMWayDirectionCategory::only_open_backwards:
 								std::reverse(modelling_node_latitude.begin(), modelling_node_latitude.end());
 								std::reverse(modelling_node_longitude.begin(), modelling_node_longitude.end());
-								on_new_arc(routing_id_of_current_node, routing_id_of_last_routing_node, dist_since_last_routing_node, routing_way_id, true, modelling_node_latitude, modelling_node_longitude);
+								on_new_arc(routing_id_of_current_node, routing_id_of_last_routing_node, dist_since_last_routing_node, routing_way_id, true, modelling_node_latitude, modelling_node_longitude, osm_way_id);
 								break;
 							default:
 								assert(false);
