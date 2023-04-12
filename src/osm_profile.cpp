@@ -160,7 +160,7 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "tertiary") ||
 		str_eq(highway, "unclassified") ||
 		str_eq(highway, "residential") ||
-	/*	str_eq(highway, "service") ||   */
+		str_eq(highway, "service") ||
 		str_eq(highway, "secondary_link") ||
 		str_eq(highway, "tertiary_link") ||
 		str_eq(highway, "living_street") ||
@@ -302,6 +302,7 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 			str_eq(highway, "tertiary") ||
 			str_eq(highway, "unclassified") ||
 			str_eq(highway, "residential") ||
+			str_eq(highway, "service") ||
 			str_eq(highway, "secondary_link") ||
 			str_eq(highway, "tertiary_link") ||
 			str_eq(highway, "living_street") ||
