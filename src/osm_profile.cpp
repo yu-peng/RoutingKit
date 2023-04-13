@@ -325,7 +325,18 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 
-	if (osm_way_id == 432998478 || osm_way_id == 35820581 ) {
+	if (osm_way_id == 432998478 ||
+		osm_way_id == 35820581 ||
+		osm_way_id == 83197835 ||
+		osm_way_id == 857250816 ||
+		osm_way_id == 382115491 ||
+		osm_way_id == 26589854 ||
+		osm_way_id == 28484671 ||
+		osm_way_id == 25747487 ||
+		osm_way_id == 230864928 ||
+		osm_way_id == 59616803 ||
+		osm_way_id == 29048566 ||
+		osm_way_id == 29066397) {
 		return false;
 	}
 
