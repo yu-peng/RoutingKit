@@ -325,7 +325,18 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
 
-	if (osm_way_id == 432998478 || osm_way_id == 35820581 ) {
+	if (osm_way_id == 432998478 || /* Greece */
+		osm_way_id == 35820581 || /* Sahil Cd, Turkey */
+		osm_way_id == 83197835 || /* Carrer Fluixà, Spain*/
+		osm_way_id == 857250816 || /* C. del Mar, Spain*/
+		osm_way_id == 382115491 || /* AP-7, Spain*/
+		osm_way_id == 26589854 || /* AP-7, Spain*/
+		osm_way_id == 28484671 || /* AP-7, Spain*/
+		osm_way_id == 25747487 || /* AP-7, Spain*/
+		osm_way_id == 230864928 || /* AP-7, Spain*/
+		osm_way_id == 59616803 || /* AP-7, Spain*/
+		osm_way_id == 29048566 || /* AP-7, Spain*/
+		osm_way_id == 29066397) { /* AP-7, Spain*/
 		return false;
 	}
 
