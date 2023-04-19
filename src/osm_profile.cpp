@@ -323,7 +323,7 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 	return 5;
 }
 
-bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 
 	if (osm_way_id == 432998478 || /* Greece */
 		osm_way_id == 35820581 || /* Sahil Cd, Turkey */
@@ -345,15 +345,11 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
-/*
-	const char* route = tags["route"];
-	if(route && str_eq(route, "ferry"))
+	
+	if (ferry_enabled && is_osm_way_ferry(tags)) {
 		return true;
+	}
 
-	const char* ferry = tags["ferry"];
-	if(ferry && str_eq(ferry, "yes"))
-		return true;
-*/
 	const char* highway = tags["highway"];
 	if(highway == nullptr)
 		return false;
@@ -696,6 +692,19 @@ std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::functi
 		return std::string(ref);
 	else
 		return std::string();
+}
+
+std::vector<std::string> get_osm_way_names_in_local_languages(const TagMap&tags) {
+	std::vector<std::string> name_in_local_languages;
+	for (std::vector<TagMap::Entry>::const_iterator it = tags.begin(); it != tags.end(); ++it) {
+		std::string key = it->key;
+		std::string val = it->value;
+		if (key.find("name:") == 0) {
+			std::string language = key.substr(5);
+			name_in_local_languages.push_back(language + ":" + val);
+		}
+	}
+	return name_in_local_languages;
 }
 
 bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
@@ -1088,6 +1097,23 @@ void decode_osm_car_turn_restrictions(
 //	for(unsigned from_member:from_member_list)
 //		for(unsigned to_member:to_member_list)
 //			on_new_turn_restriction(OSMTurnRestriction{osm_relation_id, restriction_type, turn_direction, member_list[from_member].id, via_node, member_list[to_member].id});
+}
+
+bool is_osm_way_ferry(const TagMap&tags) {
+	
+	const char* route = tags["route"];
+	if(route && str_eq(route, "ferry"))
+		return true;
+
+	const char* ferry = tags["ferry"];
+	if(ferry && str_eq(ferry, "yes"))
+		return true;
+	
+	const char* highway = tags["highway"];
+	if(highway != nullptr && str_eq(highway, "ferry"))
+		return true;
+
+	return false;
 }
 
 } // RoutingKit

@@ -10,6 +10,7 @@ namespace RoutingKit{
 
 SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message,
 	bool all_modelling_nodes_are_routing_nodes,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered
@@ -18,7 +19,7 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 		pbf_file,
 		nullptr,
 		[&](uint64_t osm_way_id, const TagMap&tags){
-			return is_osm_way_used_by_cars(osm_way_id, tags, log_message);
+			return is_osm_way_used_by_cars(osm_way_id, tags, log_message, ferry_enabled);
 		},
 		log_message,
 		all_modelling_nodes_are_routing_nodes
@@ -57,6 +58,9 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
 	ret.is_arc_antiparallel_to_way = std::move(routing_graph.is_arc_antiparallel_to_way);
 	ret.osm_way_id = std::move(routing_graph.osm_way_id);
+	ret.name = std::move(routing_graph.name);
+	ret.name_in_local_languages = std::move(routing_graph.name_in_local_languages);
+	ret.is_ferry = std::move(routing_graph.is_ferry);
 
 	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){
