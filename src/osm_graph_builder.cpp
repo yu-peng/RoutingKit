@@ -329,6 +329,10 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 		routing_graph.polyline_id = apply_inverse_permutation(p, std::move(routing_graph.polyline_id));
 		routing_graph.way = apply_inverse_permutation(p, std::move(routing_graph.way));
 		routing_graph.is_arc_antiparallel_to_way = apply_inverse_permutation(p, std::move(routing_graph.is_arc_antiparallel_to_way));
+		routing_graph.osm_way_id = apply_inverse_permutation(p, std::move(routing_graph.osm_way_id));
+		routing_graph.name = apply_inverse_permutation(p, std::move(routing_graph.name));
+		routing_graph.name_in_local_languages = apply_inverse_permutation(p, std::move(routing_graph.name_in_local_languages));
+		routing_graph.is_ferry = apply_inverse_permutation(p, std::move(routing_graph.is_ferry));
 		routing_graph.first_out = invert_vector(tail, node_count);
 
 		if(geometry_to_be_extracted == OSMRoadGeometry::uncompressed || geometry_to_be_extracted == OSMRoadGeometry::first_and_last){
