@@ -683,24 +683,30 @@ std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::functi
 	auto
 		name = tags["name"],
 		ref = tags["ref"];
-
+	
+	std::string osm_way_name;
 	if(name != nullptr && ref != nullptr)
-		return std::string(name) + ";"+ref;
+		osm_way_name = std::string(name) + ";"+ref;
 	else if(name != nullptr)
-		return std::string(name);
+		osm_way_name = std::string(name);
 	else if(ref != nullptr)
-		return std::string(ref);
+		osm_way_name = std::string(ref);
 	else
-		return std::string();
+		osm_way_name = std::string();
+	
+	// replace all the occurrence of "," with "-"
+	std::replace(osm_way_name.begin(), osm_way_name.end(), ',', '-');
+	return osm_way_name;
 }
 
 std::vector<std::string> get_osm_way_names_in_local_languages(const TagMap&tags) {
 	std::vector<std::string> name_in_local_languages;
 	for (std::vector<TagMap::Entry>::const_iterator it = tags.begin(); it != tags.end(); ++it) {
-		std::string key = it->key;
+		std::string key = it->key; // The format of the key is "name:<language code>", for example, "name:es" (Spanish).
 		std::string val = it->value;
 		if (key.find("name:") == 0) {
-			std::string language = key.substr(5);
+			std::string language = key.substr(5); // Only keep the language code
+			std::replace(val.begin(), val.end(), ',', '-');// replace all the occurrence of "," with "-"
 			name_in_local_languages.push_back(language + ":" + val);
 		}
 	}
@@ -1100,6 +1106,9 @@ void decode_osm_car_turn_restrictions(
 }
 
 bool is_osm_way_ferry(const TagMap&tags) {
+	const char* building = tags["building"];
+	if (building && str_eq(building, "yes"))
+		return false; // if the way is a building, then it should not be treated as a way
 	
 	const char* route = tags["route"];
 	if(route && str_eq(route, "ferry"))
