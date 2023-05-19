@@ -590,8 +590,8 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 			return 25;
 		if(str_eq(highway, "track"))
 			return 8;
-		if(str_eq(highway, "ferry"))
-			return 5;
+		// if(str_eq(highway, "ferry"))
+		// 	return 15;
 	}
 
 	auto junction = tags["junction"];
@@ -600,14 +600,8 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 	}
 
 	// TODO: a ferry may have a duration tag
-	auto route = tags["route"];
-	if(route && str_eq(route, "ferry")) {
-		return 5;
-	}
-
-	auto ferry = tags["ferry"];
-	if(ferry) {
-		return 5;
+	if (is_osm_way_ferry(tags)) {
+		return 15; // km/hour
 	}
 
 	if(maxspeed && highway && log_message)
