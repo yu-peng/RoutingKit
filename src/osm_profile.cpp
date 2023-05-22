@@ -337,7 +337,8 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 		osm_way_id == 59616803 || /* AP-7, Spain*/
 		osm_way_id == 29048566 || /* AP-7, Spain*/
 		osm_way_id == 29066397 || /* AP-7, Spain*/
-		osm_way_id == 489371809 /* Inappropriate road for buses, Greece*/
+		osm_way_id == 489371809 ||/* Inappropriate road for buses, Greece*/
+		osm_way_id == 176941958 /*ENG-2752, Inappropriate road for buses, Greece*/
 		) {
 		return false;
 	}
