@@ -47,28 +47,28 @@ int main(int argc, char*argv[]){
 
 
 	cout << "Test pedestrian without logging" << endl;
-	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file);
+	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file, false);
 	cout << "Done" << endl;
 
 	cout << "Test pedestrian with logging" << endl;
-	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file, log_message);
+	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file, false, log_message);
 	cout << "Done" << endl;
 
 	cout << "Test pedestrian with logging and degree 2 nodes" << endl;
-	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file, log_message, true);
+	simple_load_osm_pedestrian_routing_graph_from_pbf(pbf_file, false, log_message, true);
 	cout << "Done" << endl;
 
 
 	cout << "Test bicycle without logging" << endl;
-	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file);
+	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file, false);
 	cout << "Done" << endl;
 
 	cout << "Test bicycle with logging" << endl;
-	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file, log_message);
+	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file, false, log_message);
 	cout << "Done" << endl;
 
 	cout << "Test bicycle with logging and degree 2 nodes" << endl;
-	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file, log_message, true);
+	simple_load_osm_bicycle_routing_graph_from_pbf(pbf_file, false, log_message, true);
 	cout << "Done" << endl;
 
 }

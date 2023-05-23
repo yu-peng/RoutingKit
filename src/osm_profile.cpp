@@ -64,19 +64,16 @@ namespace{
 	}
 }
 
-bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
+
+	// We could also check the "foot" tag, but we assume that all ferry should be accessible by pedestrians.
+	if (ferry_enabled && is_osm_way_ferry(tags)) {
+		return true;
+	}
 /*
-	const char* route = tags["route"];
-	if(route && str_eq(route, "ferry"))
-		return true;
-
-	const char* ferry = tags["ferry"];
-	if(ferry && str_eq(ferry, "ferry"))
-		return true;
-
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
 	   (str_eq(public_transport, "stop_position") ||
@@ -217,6 +214,10 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 }
 
 unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+	if (is_osm_way_ferry(tags)) {
+		// This is a default speed, if the ferry has a 'duration' tag, this speed will be ignored
+		return 15; // km/hour
+	}
 
 	const char* public_transport = tags["public_transport"];
 	if(public_transport != nullptr &&
@@ -323,6 +324,14 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 	return 5;
 }
 
+unsigned get_osm_way_pedestrian_penalty(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message) {
+	// the unit is millisecond
+	if (is_osm_way_ferry(tags)) {
+		return 600000; // 10 minutes
+	}
+	return 0;
+}
+
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 
 	if (osm_way_id == 432998478 || /* Greece */
@@ -347,7 +356,15 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 		return true;
 	
 	if (ferry_enabled && is_osm_way_ferry(tags)) {
-		return true;
+		const char* motor_vehicle = tags["motor_vehicle"];
+		const char* motorcar = tags["motorcar"];
+		// 1. If 'motorcar' tag does not exists, check 'motor_vehicle' tag
+		// 2. Else, check 'motorcar'
+		if (motorcar == nullptr) {
+			return motor_vehicle != nullptr && str_eq(motor_vehicle, "yes");
+		} else {
+			return str_eq(motorcar, "yes");
+		}
 	}
 
 	const char* highway = tags["highway"];
@@ -601,8 +618,8 @@ unsigned get_osm_way_speed(uint64_t osm_way_id, const TagMap&tags, std::function
 		return 20;
 	}
 
-	// TODO: a ferry may have a duration tag
 	if (is_osm_way_ferry(tags)) {
+		// This is a default speed, if the ferry has a 'duration' tag, this speed will be ignored
 		return 15; // km/hour
 	}
 
@@ -651,23 +668,17 @@ unsigned get_osm_way_penalty(uint64_t osm_way_id, const TagMap&tags, std::functi
 			return 0;
 		if(str_eq(highway, "track"))
 			return 0;
-		if(str_eq(highway, "ferry"))
-			return 0;
+		// if(str_eq(highway, "ferry"))
+		// 	return 0;
+	}
+
+	if (is_osm_way_ferry(tags)) {
+		return 600000; // 10 minutes
 	}
 /*
 	auto junction = tags["junction"];
 	if(junction){
 		return 20000;
-	}
-
-	auto route = tags["route"];
-	if(route && str_eq(route, "ferry")) {
-		return 0;
-	}
-
-	auto ferry = tags["ferry"];
-	if(ferry) {
-		return 0;
 	}
 */
 	return 0;
@@ -678,48 +689,26 @@ std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::functi
 		name = tags["name"],
 		ref = tags["ref"];
 	
-	std::string osm_way_name;
 	if(name != nullptr && ref != nullptr)
-		osm_way_name = std::string(name) + ";"+ref;
+		return std::string(name) + ";"+ref;
 	else if(name != nullptr)
-		osm_way_name = std::string(name);
+		return std::string(name);
 	else if(ref != nullptr)
-		osm_way_name = std::string(ref);
+		return std::string(ref);
 	else
-		osm_way_name = std::string();
-	
-	// replace all the occurrence of "," with "-"
-	std::replace(osm_way_name.begin(), osm_way_name.end(), ',', '-');
-	return osm_way_name;
+		return std::string();
 }
 
-std::vector<std::string> get_osm_way_names_in_local_languages(const TagMap&tags) {
-	std::vector<std::string> name_in_local_languages;
-	for (std::vector<TagMap::Entry>::const_iterator it = tags.begin(); it != tags.end(); ++it) {
-		std::string key = it->key; // The format of the key is "name:<language code>", for example, "name:es" (Spanish).
-		std::string val = it->value;
-		if (key.find("name:") == 0) {
-			std::string language = key.substr(5); // Only keep the language code
-			std::replace(val.begin(), val.end(), ',', '-');// replace all the occurrence of "," with "-"
-			name_in_local_languages.push_back(language + ":" + val);
-		}
-	}
-	return name_in_local_languages;
-}
-
-bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return true;
-/*
-	const char* route = tags["route"];
-	if(route != nullptr && str_eq(route, "ferry"))
-		return true;
 
-	const char* ferry = tags["ferry"];
-	if(ferry != nullptr && str_eq(ferry, "ferry"))
+	// We could also check the "bicycle" tag, but we assume that all ferry should be accessible by bicycles.
+	if (ferry_enabled && is_osm_way_ferry(tags)) {
 		return true;
-*/
+	}
+
 	const char* highway = tags["highway"];
 	if(highway == nullptr)
 		return false;
@@ -815,6 +804,11 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 }
 
 unsigned get_osm_way_bicycle_speed(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+	if (is_osm_way_ferry(tags)) {
+		// This is a default speed, if the ferry has a 'duration' tag, this speed will be ignored
+		return 15; // km/hour
+	}
+
 	const char* junction = tags["junction"];
 	if(junction != nullptr)
 		return 10;
@@ -934,6 +928,7 @@ unsigned char get_max_bicycle_comfort_level(){
 }
 
 unsigned char get_osm_way_bicycle_comfort_level(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+	//TODO: What should the comfort level be if it is ferry
 	const char*highway = tags["highway"];
 	if(highway != nullptr && str_eq(highway, "cycleway"))
 		return 4;
@@ -954,6 +949,14 @@ unsigned char get_osm_way_bicycle_comfort_level(uint64_t osm_way_id, const TagMa
 		return 0;
 
 	return 1;
+}
+
+unsigned get_osm_way_bicycle_penalty(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message) {
+	// the unit is millisecond
+	if (is_osm_way_ferry(tags)) {
+		return 600000; // 10 minutes
+	}
+	return 0;
 }
 
 void decode_osm_car_turn_restrictions(
@@ -1117,6 +1120,22 @@ bool is_osm_way_ferry(const TagMap&tags) {
 		return true;
 
 	return false;
+}
+
+/**
+ * @param tags tags of the osm way
+ * @return the travel time in milliseconds
+*/
+unsigned get_osm_way_travel_time(const TagMap&tags) {
+	const char* duration = tags["duration"];
+	if (duration != nullptr) {
+		// The duration format is 'hh:mm'
+		std::string dur(duration);
+		unsigned hours = std::stoi(dur.substr(0, 2));
+		unsigned minutes = std::stoi(dur.substr(3, 2));
+		return hours * 3600000 + minutes * 60000;
+	}
+	return 0;
 }
 
 } // RoutingKit

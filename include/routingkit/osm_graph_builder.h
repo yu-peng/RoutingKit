@@ -65,13 +65,12 @@ struct OSMRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
 	std::vector<unsigned>way;
-	std::vector<unsigned>geo_distance;
+	std::vector<unsigned>travel_time; // in milliseconds
+	std::vector<unsigned>geo_distance; // in meters
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<bool>is_arc_antiparallel_to_way;
 	std::vector<uint64_t> osm_way_id;
-	std::vector<std::string>name;
-	std::vector<std::vector<std::string>>name_in_local_languages;
 
 	std::vector<unsigned>forbidden_turn_from_arc;
 	std::vector<unsigned>forbidden_turn_to_arc;
@@ -83,8 +82,6 @@ struct OSMRoutingGraph{
 	std::vector<unsigned> polyline_id;
 	std::vector<std::vector<float>>polyline_latitude;
 	std::vector<std::vector<float>>polyline_longitude;
-
-	std::vector<bool> is_ferry;
 
 	unsigned node_count()const{
 		return first_out.size()-1;
