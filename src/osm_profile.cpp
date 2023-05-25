@@ -688,7 +688,7 @@ std::string get_osm_way_name(uint64_t osm_way_id, const TagMap&tags, std::functi
 	auto
 		name = tags["name"],
 		ref = tags["ref"];
-	
+
 	if(name != nullptr && ref != nullptr)
 		return std::string(name) + ";"+ref;
 	else if(name != nullptr)
