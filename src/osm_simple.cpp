@@ -67,9 +67,9 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
 			ret.travel_time[a] = ret.geo_distance[a] * 3600;
 			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-			// add penalty
-			ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 		}
+		// add penalty
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	ret.forbidden_turn_from_arc = std::move(routing_graph.forbidden_turn_from_arc);
@@ -131,10 +131,10 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 		// then it mean this osm_way is using 'duration' as 'travel_time', therefore, no need to update it when 'travel_time' != 0
 		if (ret.travel_time[a] == 0) {
 			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
-			ret.travel_time[a] *= 3600;
+			ret.travel_time[a] = ret.geo_distance[a] * 3600;
 			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-			ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 		}
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	return ret;
@@ -202,10 +202,10 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 		// then it mean this osm_way is using 'duration' as 'travel_time', therefore, no need to update it when 'travel_time' != 0
 		if (ret.travel_time[a] == 0) {
 			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
-			ret.travel_time[a] *= 3600;
+			ret.travel_time[a] = ret.geo_distance[a] * 3600;
 			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-			ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 		}
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	return ret;
