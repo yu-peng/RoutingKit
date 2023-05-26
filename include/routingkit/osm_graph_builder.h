@@ -65,7 +65,8 @@ struct OSMRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
 	std::vector<unsigned>way;
-	std::vector<unsigned>geo_distance;
+	std::vector<unsigned>travel_time; // in milliseconds
+	std::vector<unsigned>geo_distance; // in meters
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<bool>is_arc_antiparallel_to_way;

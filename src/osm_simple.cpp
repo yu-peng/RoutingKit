@@ -10,6 +10,7 @@ namespace RoutingKit{
 
 SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message,
 	bool all_modelling_nodes_are_routing_nodes,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered
@@ -18,7 +19,7 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 		pbf_file,
 		nullptr,
 		[&](uint64_t osm_way_id, const TagMap&tags){
-			return is_osm_way_used_by_cars(osm_way_id, tags, log_message);
+			return is_osm_way_used_by_cars(osm_way_id, tags, log_message, ferry_enabled);
 		},
 		log_message,
 		all_modelling_nodes_are_routing_nodes
@@ -57,12 +58,17 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
 	ret.is_arc_antiparallel_to_way = std::move(routing_graph.is_arc_antiparallel_to_way);
 	ret.osm_way_id = std::move(routing_graph.osm_way_id);
+	ret.travel_time = std::move(routing_graph.travel_time);
 
-	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){
-		ret.travel_time[a] *= 18000;
-		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-		ret.travel_time[a] /= 5;
+		// Some of the osm ways have 'duration' tag, if the 'travel_time' is not 0,
+		// then it mean this osm_way is using 'duration' as 'travel_time', therefore, no need to update it when 'travel_time' != 0
+		if (ret.travel_time[a] == 0) {
+			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
+			ret.travel_time[a] = ret.geo_distance[a] * 3600;
+			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
+		}
+		// add penalty
 		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
@@ -75,6 +81,7 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 
 SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message,
 	bool all_modelling_nodes_are_routing_nodes,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered
@@ -83,7 +90,7 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 		pbf_file,
 		nullptr,
 		[&](uint64_t osm_way_id, const TagMap&tags){
-			return is_osm_way_used_by_pedestrians(osm_way_id, tags, log_message);
+			return is_osm_way_used_by_pedestrians(osm_way_id, tags, log_message, ferry_enabled);
 		},
 		log_message,
 		all_modelling_nodes_are_routing_nodes
@@ -91,11 +98,13 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 
 	unsigned routing_way_count = mapping.is_routing_way.population_count();
 	std::vector<unsigned> way_speed(routing_way_count);
+	std::vector<unsigned> way_penalty(routing_way_count);
 	auto routing_graph = load_osm_routing_graph_from_pbf(
 		pbf_file,
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
 			way_speed[routing_way_id] = get_osm_way_pedestrian_speed(osm_way_id, way_tags, log_message);
+			way_penalty[routing_way_id] = get_osm_way_bicycle_penalty(osm_way_id, way_tags, log_message);
 			return OSMWayDirectionCategory::open_in_both;
 		},
 		nullptr,
@@ -115,12 +124,17 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 	ret.polyline_id = std::move(routing_graph.polyline_id);
 	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
 	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
+	ret.travel_time = std::move(routing_graph.travel_time);
 
-   	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){
-		ret.travel_time[a] *= 18000;
-		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-		ret.travel_time[a] /= 5;
+		// Some of the osm ways have 'duration' tag, if the 'travel_time' is not 0,
+		// then it mean this osm_way is using 'duration' as 'travel_time', therefore, no need to update it when 'travel_time' != 0
+		if (ret.travel_time[a] == 0) {
+			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
+			ret.travel_time[a] = ret.geo_distance[a] * 3600;
+			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
+		}
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	return ret;
@@ -129,6 +143,7 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 
 SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message,
 	bool all_modelling_nodes_are_routing_nodes,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered
@@ -137,7 +152,7 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 		pbf_file,
 		nullptr,
 		[&](uint64_t osm_way_id, const TagMap&tags){
-			return is_osm_way_used_by_bicycles(osm_way_id, tags, log_message);
+			return is_osm_way_used_by_bicycles(osm_way_id, tags, log_message, ferry_enabled);
 		},
 		log_message,
 		all_modelling_nodes_are_routing_nodes
@@ -145,6 +160,7 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 
 	unsigned routing_way_count = mapping.is_routing_way.population_count();
 	std::vector<unsigned> way_speed(routing_way_count);
+	std::vector<unsigned> way_penalty(routing_way_count);
 	std::vector<unsigned char> comfort_level(routing_way_count, false);
 
 	auto routing_graph = load_osm_routing_graph_from_pbf(
@@ -152,6 +168,7 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 		mapping,
 		[&](uint64_t osm_way_id, unsigned routing_way_id, const TagMap&way_tags){
 			way_speed[routing_way_id] = get_osm_way_bicycle_speed(osm_way_id, way_tags, log_message);
+			way_penalty[routing_way_id] = get_osm_way_bicycle_penalty(osm_way_id, way_tags, log_message);
 			comfort_level[routing_way_id] = get_osm_way_bicycle_comfort_level(osm_way_id, way_tags, log_message);
 			return get_osm_bicycle_direction_category(osm_way_id, way_tags, log_message);
 		},
@@ -174,16 +191,21 @@ SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 	ret.polyline_id = std::move(routing_graph.polyline_id);
 	ret.polyline_latitude = std::move(routing_graph.polyline_latitude);
 	ret.polyline_longitude = std::move(routing_graph.polyline_longitude);
+	ret.travel_time = std::move(routing_graph.travel_time);
 
 	ret.arc_comfort_level.resize(arc_count);
 	for(unsigned a=0; a<arc_count; ++a)
 		ret.arc_comfort_level[a] = comfort_level[routing_graph.way[a]];
 
-   	ret.travel_time = ret.geo_distance;
 	for(unsigned a=0; a<ret.travel_time.size(); ++a){
-		ret.travel_time[a] *= 18000;
-		ret.travel_time[a] /= way_speed[routing_graph.way[a]];
-		ret.travel_time[a] /= 5;
+		// Some of the osm ways have 'duration' tag, if the 'travel_time' is not 0,
+		// then it mean this osm_way is using 'duration' as 'travel_time', therefore, no need to update it when 'travel_time' != 0
+		if (ret.travel_time[a] == 0) {
+			// multiply by the number of milliseconds in one hour and then divide by the speed (km/h)
+			ret.travel_time[a] = ret.geo_distance[a] * 3600;
+			ret.travel_time[a] /= way_speed[routing_graph.way[a]];
+		}
+		ret.travel_time[a] += way_penalty[routing_graph.way[a]];
 	}
 
 	return ret;

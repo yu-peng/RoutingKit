@@ -10,8 +10,8 @@ namespace RoutingKit{
 struct SimpleOSMCarRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
-	std::vector<unsigned>travel_time;
-	std::vector<unsigned>geo_distance;
+	std::vector<unsigned>travel_time; // in milliseconds
+	std::vector<unsigned>geo_distance; // in meters
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<unsigned>forbidden_turn_from_arc;
@@ -34,6 +34,7 @@ struct SimpleOSMCarRoutingGraph{
 
 SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message = nullptr,
 	bool all_modelling_nodes_are_routing_nodes = false,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered = false
@@ -42,8 +43,8 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 struct SimpleOSMPedestrianRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
-	std::vector<unsigned>travel_time;
-	std::vector<unsigned>geo_distance;
+	std::vector<unsigned>travel_time; // in milliseconds
+	std::vector<unsigned>geo_distance; // in meters
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<unsigned>polyline_id;
@@ -62,6 +63,7 @@ struct SimpleOSMPedestrianRoutingGraph{
 
 SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message = nullptr,
 	bool all_modelling_nodes_are_routing_nodes = false,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered = false
@@ -70,8 +72,8 @@ SimpleOSMPedestrianRoutingGraph simple_load_osm_pedestrian_routing_graph_from_pb
 struct SimpleOSMBicycleRoutingGraph{
 	std::vector<unsigned>first_out;
 	std::vector<unsigned>head;
-	std::vector<unsigned>travel_time;
-	std::vector<unsigned>geo_distance;
+	std::vector<unsigned>travel_time; // in milliseconds
+	std::vector<unsigned>geo_distance; // in meters
 	std::vector<float>latitude;
 	std::vector<float>longitude;
 	std::vector<unsigned char>arc_comfort_level;
@@ -91,6 +93,7 @@ struct SimpleOSMBicycleRoutingGraph{
 
 SimpleOSMBicycleRoutingGraph simple_load_osm_bicycle_routing_graph_from_pbf(
 	const std::string&pbf_file,
+	bool ferry_enabled,
 	const std::function<void(const std::string&)>&log_message = nullptr,
 	bool all_modelling_nodes_are_routing_nodes = false,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered = false
