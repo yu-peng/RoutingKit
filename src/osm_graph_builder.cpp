@@ -272,17 +272,17 @@ OSMRoutingGraph load_osm_routing_graph_from_pbf(
 							switch(dir){
 							case OSMWayDirectionCategory::only_open_forwards:
 								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node,
-										   routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(tags));
+										   routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(osm_way_id, tags));
 								break;
 							case OSMWayDirectionCategory::open_in_both:
 								on_new_arc(routing_id_of_last_routing_node, routing_id_of_current_node, dist_since_last_routing_node,
-										   routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(tags));
+										   routing_way_id, false, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(osm_way_id, tags));
 								// no break
 							case OSMWayDirectionCategory::only_open_backwards:
 								std::reverse(modelling_node_latitude.begin(), modelling_node_latitude.end());
 								std::reverse(modelling_node_longitude.begin(), modelling_node_longitude.end());
 								on_new_arc(routing_id_of_current_node, routing_id_of_last_routing_node, dist_since_last_routing_node,
-										   routing_way_id, true, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(tags));
+										   routing_way_id, true, modelling_node_latitude, modelling_node_longitude, osm_way_id, RoutingKit::get_osm_way_travel_time(osm_way_id, tags));
 								break;
 							default:
 								assert(false);

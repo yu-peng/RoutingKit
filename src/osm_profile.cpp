@@ -1127,14 +1127,25 @@ bool is_osm_way_ferry(const TagMap&tags) {
  * @param tags tags of the osm way
  * @return the travel time in milliseconds
 */
-unsigned get_osm_way_travel_time(const TagMap&tags) {
+unsigned get_osm_way_travel_time(uint64_t osm_way_id, const TagMap&tags) {
 	const char* duration = tags["duration"];
 	if (duration != nullptr) {
 		// The duration format is 'hh:mm'
 		std::string dur(duration);
-		unsigned hours = std::stoi(dur.substr(0, 2));
-		unsigned minutes = std::stoi(dur.substr(3, 2));
-		return hours * 3600000 + minutes * 60000;
+		try {
+			//values less than one hour have been entered as simple integer minutes
+			if (dur.find(":") == std::string::npos) {
+				unsigned minutes = std::stoi(dur);
+				return minutes * 60000;
+			}
+			// parse 'hh:mm'
+			unsigned hours = std::stoi(dur.substr(0, 2));
+			unsigned minutes = std::stoi(dur.substr(3, 2));
+			return hours * 3600000 + minutes * 60000;
+		} catch (std::exception& err) {
+			std::cout << "Cannot parse duration[" << dur << "] for OSM way id: " << osm_way_id << " (" << err.what() << ")" << std::endl;
+			return 0;
+		}
 	}
 	return 0;
 }

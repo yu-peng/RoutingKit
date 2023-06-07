@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <string>
+#include <iostream>
 
 namespace RoutingKit{
 
@@ -30,7 +31,7 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 unsigned get_osm_way_pedestrian_penalty(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message);
 
 bool is_osm_way_ferry(const TagMap&tags);
-unsigned get_osm_way_travel_time(const TagMap&tags);
+unsigned get_osm_way_travel_time(uint64_t osm_way_id, const TagMap&tags);
 } // RoutingKit
 
 #endif
