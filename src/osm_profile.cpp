@@ -1133,7 +1133,7 @@ unsigned get_osm_way_travel_time(uint64_t osm_way_id, const TagMap&tags) {
 		// The duration format is 'hh:mm'
 		std::string dur(duration);
 		try {
-			//values less than one hour have been entered as simple integer minutes
+			// values less than one hour have been entered as simple integer minutes
 			if (dur.find(":") == std::string::npos) {
 				unsigned minutes = std::stoi(dur);
 				return minutes * 60000;
