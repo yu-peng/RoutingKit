@@ -149,6 +149,16 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 			return false;
 		}
 	}
+	
+	// if the footway is indoor, ignore the footway, for example, when people is in the airport, the footway is not used
+	if (str_eq(highway, "footway")) {
+		const char* indoor = tags["indoor"];
+		if (indoor != nullptr && str_eq(indoor, "yes")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	if(
 		str_eq(highway, "primary") ||
@@ -165,7 +175,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "track") ||
 		str_eq(highway, "bicycle_road") ||
 		str_eq(highway, "path") ||
-		str_eq(highway, "footway") ||
 		str_eq(highway, "cycleway") ||
 		str_eq(highway, "bridleway") ||
 		str_eq(highway, "pedestrian") ||
@@ -761,6 +770,16 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 	const char* cycleway_both = tags["cycleway:both"];
 	if(cycleway_both != nullptr)
 		return true;
+	
+	// if the footway is indoor, ignore the footway, for example, when people is in the airport, the footway is not used
+	if (str_eq(highway, "footway")) {
+		const char* indoor = tags["indoor"];
+		if (indoor != nullptr && str_eq(indoor, "yes")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	if(
 		str_eq(highway, "secondary") ||
@@ -777,7 +796,6 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 		str_eq(highway, "primary") ||
 		str_eq(highway, "primary_link") ||
 		str_eq(highway, "path") ||
-		str_eq(highway, "footway") ||
 		str_eq(highway, "cycleway") ||
 		str_eq(highway, "bridleway") ||
 		str_eq(highway, "pedestrian") ||
