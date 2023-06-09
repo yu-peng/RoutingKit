@@ -149,6 +149,16 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 			return false;
 		}
 	}
+	
+	// if the footway is indoor, ignore the footway, for example, when people is in the airport, the footway is not used
+	if (str_eq(highway, "footway")) {
+		const char* indoor = tags["indoor"];
+		if (indoor != nullptr && str_eq(indoor, "yes")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	if(
 		str_eq(highway, "primary") ||
@@ -165,7 +175,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "track") ||
 		str_eq(highway, "bicycle_road") ||
 		str_eq(highway, "path") ||
-		str_eq(highway, "footway") ||
 		str_eq(highway, "cycleway") ||
 		str_eq(highway, "bridleway") ||
 		str_eq(highway, "pedestrian") ||
@@ -761,6 +770,16 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 	const char* cycleway_both = tags["cycleway:both"];
 	if(cycleway_both != nullptr)
 		return true;
+	
+	// if the footway is indoor, ignore the footway, for example, when people is in the airport, the footway is not used
+	if (str_eq(highway, "footway")) {
+		const char* indoor = tags["indoor"];
+		if (indoor != nullptr && str_eq(indoor, "yes")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	if(
 		str_eq(highway, "secondary") ||
@@ -777,7 +796,6 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 		str_eq(highway, "primary") ||
 		str_eq(highway, "primary_link") ||
 		str_eq(highway, "path") ||
-		str_eq(highway, "footway") ||
 		str_eq(highway, "cycleway") ||
 		str_eq(highway, "bridleway") ||
 		str_eq(highway, "pedestrian") ||
@@ -1127,14 +1145,25 @@ bool is_osm_way_ferry(const TagMap&tags) {
  * @param tags tags of the osm way
  * @return the travel time in milliseconds
 */
-unsigned get_osm_way_travel_time(const TagMap&tags) {
+unsigned get_osm_way_travel_time(uint64_t osm_way_id, const TagMap&tags) {
 	const char* duration = tags["duration"];
 	if (duration != nullptr) {
 		// The duration format is 'hh:mm'
 		std::string dur(duration);
-		unsigned hours = std::stoi(dur.substr(0, 2));
-		unsigned minutes = std::stoi(dur.substr(3, 2));
-		return hours * 3600000 + minutes * 60000;
+		try {
+			// values less than one hour have been entered as simple integer minutes
+			if (dur.find(":") == std::string::npos) {
+				unsigned minutes = std::stoi(dur);
+				return minutes * 60000;
+			}
+			// parse 'hh:mm'
+			unsigned hours = std::stoi(dur.substr(0, 2));
+			unsigned minutes = std::stoi(dur.substr(3, 2));
+			return hours * 3600000 + minutes * 60000;
+		} catch (std::exception& err) {
+			std::cout << "Cannot parse duration[" << dur << "] for OSM way id: " << osm_way_id << " (" << err.what() << ")" << std::endl;
+			return 0;
+		}
 	}
 	return 0;
 }
