@@ -355,8 +355,9 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 		osm_way_id == 59616803 || /* AP-7, Spain*/
 		osm_way_id == 29048566 || /* AP-7, Spain*/
 		osm_way_id == 29066397 || /* AP-7, Spain*/
-		osm_way_id == 489371809 ||/* Inappropriate road for buses, Greece*/
-		osm_way_id == 176941958 /*ENG-2752, Inappropriate road for buses, Greece*/
+		osm_way_id == 489371809 || /* Inappropriate road for buses, Greece*/
+		osm_way_id == 176941958 || /*ENG-2752, Inappropriate road for buses, Greece*/
+		osm_way_id == 1046985830 /*ENG-2790, Inappropriate road for buses, Bulgaria*/
 		) {
 		return false;
 	}
@@ -412,7 +413,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 		str_eq(highway, "motorway_junction") ||
 		str_eq(highway, "living_street") ||
 		str_eq(highway, "residential") ||
-		str_eq(highway, "track") ||
+		// str_eq(highway, "track") || /* ENG-2790, track is not appropriate for buses*/
 		str_eq(highway, "ferry")
 	)
 		return true;
