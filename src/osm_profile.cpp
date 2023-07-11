@@ -356,9 +356,17 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::functi
 		osm_way_id == 29048566 || /* AP-7, Spain*/
 		osm_way_id == 29066397 || /* AP-7, Spain*/
 		osm_way_id == 489371809 || /* Inappropriate road for buses, Greece*/
-		osm_way_id == 176941958 || /*ENG-2752, Inappropriate road for buses, Greece*/
+		osm_way_id == 176941958 || /* ENG-2752, Inappropriate road for buses, Greece*/
+		osm_way_id == 1046985830 || /* ENG-2790, Inappropriate road for buses, Bulgaria*/
 		osm_way_id == 692382996 || /* ENG-2814, Busses should not use ferry, Greece*/
-		osm_way_id == 1046985830 /*ENG-2790, Inappropriate road for buses, Bulgaria*/
+		osm_way_id == 30482250 || /* ENG-2825, road too narrow for buses, Greece*/
+		osm_way_id == 24369851 || /* ENG-2752, road too narrow for buses, Greece*/
+		osm_way_id == 40254507 || /* ENG-2851, road not appropriate for buses*/
+		osm_way_id == 489051294 || /* ENG-2851, road not appropriate for buses*/
+		osm_way_id == 288346757 || /* ENG-2851, road not appropriate for buses*/
+		osm_way_id == 26221450 || /* ENG-2851, road not appropriate for buses*/
+		osm_way_id == 747794400 || /* ENG-2851, road not appropriate for buses*/
+		osm_way_id == 29217621 /* ENG-2851, road not appropriate for buses*/
 		) {
 		return false;
 	}
