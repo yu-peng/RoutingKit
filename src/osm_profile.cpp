@@ -398,7 +398,7 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::unorde
 		str_eq(highway, "motorway_junction") ||
 		str_eq(highway, "living_street") ||
 		str_eq(highway, "residential") ||
-		str_eq(highway, "track") ||
+		// str_eq(highway, "track") || /* ENG-2790, track is not appropriate for buses*/
 		str_eq(highway, "ferry")
 	)
 		return true;
