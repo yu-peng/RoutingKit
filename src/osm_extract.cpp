@@ -70,7 +70,8 @@ int main(int argc, char*argv[]){
 			pbf_file,
 			nullptr,
 			[&](uint64_t osm_way_id, const TagMap&tags){
-				return is_osm_way_used_by_cars(osm_way_id, tags, log_message);
+				std::unordered_set<uint64_t> empty_blocked_roads;
+				return is_osm_way_used_by_cars(osm_way_id, tags, empty_blocked_roads, log_message);
 			},
 			log_message
 		);

@@ -341,25 +341,9 @@ unsigned get_osm_way_pedestrian_penalty(uint64_t osm_way_id, const TagMap&tags, 
 	return 0;
 }
 
-bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message, bool ferry_enabled){
+bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::unordered_set<uint64_t>& blocked_roads, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 
-	if (osm_way_id == 432998478 || /* Greece */
-		osm_way_id == 35820581 || /* Sahil Cd, Turkey */
-		osm_way_id == 83197835 || /* Carrer Fluixà, Spain*/
-		osm_way_id == 857250816 || /* C. del Mar, Spain*/
-		osm_way_id == 382115491 || /* AP-7, Spain*/
-		osm_way_id == 26589854 || /* AP-7, Spain*/
-		osm_way_id == 28484671 || /* AP-7, Spain*/
-		osm_way_id == 25747487 || /* AP-7, Spain*/
-		osm_way_id == 230864928 || /* AP-7, Spain*/
-		osm_way_id == 59616803 || /* AP-7, Spain*/
-		osm_way_id == 29048566 || /* AP-7, Spain*/
-		osm_way_id == 29066397 || /* AP-7, Spain*/
-		osm_way_id == 489371809 || /* Inappropriate road for buses, Greece*/
-		osm_way_id == 176941958 || /*ENG-2752, Inappropriate road for buses, Greece*/
-		osm_way_id == 692382996 || /* ENG-2814, Busses should not use ferry, Greece*/
-		osm_way_id == 1046985830 /*ENG-2790, Inappropriate road for buses, Bulgaria*/
-		) {
+	if (!blocked_roads.empty() && blocked_roads.count(osm_way_id) > 0) {
 		return false;
 	}
 

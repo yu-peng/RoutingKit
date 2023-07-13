@@ -11,6 +11,7 @@ namespace RoutingKit{
 SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 	const std::string&pbf_file,
 	bool ferry_enabled,
+	std::unordered_set<uint64_t>& blocked_roads,
 	const std::function<void(const std::string&)>&log_message,
 	bool all_modelling_nodes_are_routing_nodes,
 	bool file_is_ordered_even_though_file_header_says_that_it_is_unordered
@@ -19,7 +20,7 @@ SimpleOSMCarRoutingGraph simple_load_osm_car_routing_graph_from_pbf(
 		pbf_file,
 		nullptr,
 		[&](uint64_t osm_way_id, const TagMap&tags){
-			return is_osm_way_used_by_cars(osm_way_id, tags, log_message, ferry_enabled);
+			return is_osm_way_used_by_cars(osm_way_id, tags, blocked_roads, log_message, ferry_enabled);
 		},
 		log_message,
 		all_modelling_nodes_are_routing_nodes

@@ -32,17 +32,17 @@ int main(int argc, char*argv[]){
 			<< argv[0] << " baden-wuerttemberg-latest.osm.pbf" << endl;
 		return 1;
 	}
-
+	std::unordered_set<uint64_t> empty_blocked_roads;
 	cout << "Test car without logging" << endl;
-	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false);
+	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false, empty_blocked_roads);
 	cout << "Done" << endl;
 
 	cout << "Test car with logging" << endl;
-	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false, log_message);
+	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false, empty_blocked_roads, log_message);
 	cout << "Done" << endl;
 
 	cout << "Test car with logging and degree 2 nodes" << endl;
-	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false, log_message, true);
+	simple_load_osm_car_routing_graph_from_pbf(pbf_file, false, empty_blocked_roads, log_message, true);
 	cout << "Done" << endl;
 
 
