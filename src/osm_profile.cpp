@@ -343,7 +343,7 @@ unsigned get_osm_way_pedestrian_penalty(uint64_t osm_way_id, const TagMap&tags, 
 
 bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::unordered_set<uint64_t>& blocked_roads, std::function<void(const std::string&)>log_message, bool ferry_enabled){
 
-	if (blocked_roads.count(osm_way_id) > 0) {
+	if (!blocked_roads.empty() && blocked_roads.count(osm_way_id) > 0) {
 		return false;
 	}
 
