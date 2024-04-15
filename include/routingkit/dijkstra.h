@@ -12,14 +12,15 @@ class Dijkstra{
 public:
 	Dijkstra():first_out(nullptr){}
 
-	Dijkstra(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head):
+	Dijkstra(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head, const unsigned time_limit = 0):
 		tentative_distance(first_out.size()-1),
 		predecessor_arc(first_out.size()-1),
 		was_popped(first_out.size()-1),
 		queue(first_out.size()-1),
 		first_out(&first_out),
 		tail(&tail),
-		head(&head){
+		head(&head),
+		time_limit(time_limit) {
 		assert(!first_out.empty());
 		assert(first_out.front() == 0);
 		assert(first_out.back() == tail.size());
@@ -88,6 +89,9 @@ public:
 		auto p = queue.pop();
 		tentative_distance[p.id] = p.key;
 		was_popped.set(p.id);
+		if (time_limit > 0 && p.key > time_limit) {
+			return SettleResult{p.id, p.key};
+		}
 
 		for(unsigned a=(*first_out)[p.id]; a<(*first_out)[p.id+1]; ++a){
 			if(!was_popped.is_set((*head)[a])){
@@ -104,7 +108,7 @@ public:
 				}
 			}
 		}
-		return SettleResult{p.id, p.key};
+		return SettleResult{p.id, p.key}; // TODO: change this id to "a" instead of "(*head)[a]"
 	}
 
 	unsigned get_distance_to(unsigned x) const {
@@ -152,6 +156,7 @@ private:
 
 	TimestampFlags was_popped;
 	MinIDQueue queue;
+	unsigned time_limit;
 
 	const std::vector<unsigned>*first_out;
 	const std::vector<unsigned>*tail;
