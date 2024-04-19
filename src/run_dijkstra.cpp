@@ -61,7 +61,7 @@ int main(int argc, char*argv[]){
 		if(weight.size() != arc_count)
 			throw runtime_error("The weight vector must be as long as the number of arcs");
 
-		Dijkstra dij(first_out, tail, head);
+		Dijkstra dij(first_out, tail, head, weight);
 
 		cout << "Loading test queries ... " << flush;
 
@@ -91,7 +91,7 @@ int main(int argc, char*argv[]){
 
 			dij.reset().add_source(source[i]);
 			while(!dij.is_finished()){
-				auto x = dij.settle(ScalarGetWeight(weight)).node;
+				auto x = dij.settle().node;
 				if(x == target[i])
 					break;
 			}

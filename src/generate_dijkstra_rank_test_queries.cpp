@@ -66,7 +66,7 @@ int main(int argc, char*argv[]){
 		std::default_random_engine gen(random_seed);
 		std::uniform_int_distribution<int> dist(0, node_count-1);
 
-		Dijkstra dij(first_out, tail, head);
+		Dijkstra dij(first_out, tail, head, weight);
 
 		for(unsigned i=0; i<source_node_count; ++i){
 			
@@ -77,7 +77,7 @@ int main(int argc, char*argv[]){
 			dij.reset().add_source(source_node);
 			
 			while(!dij.is_finished()){
-				auto x = dij.settle(ScalarGetWeight(weight));
+				auto x = dij.settle();
 				++n;
 				if(n == (1u << r)){
 

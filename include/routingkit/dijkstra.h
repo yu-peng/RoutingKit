@@ -12,7 +12,7 @@ class Dijkstra{
 public:
 	Dijkstra():first_out(nullptr){}
 
-	Dijkstra(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head, const unsigned time_limit = 0):
+	Dijkstra(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head, const std::vector<unsigned>&weight):
 		tentative_distance(first_out.size()-1),
 		predecessor_arc(first_out.size()-1),
 		was_popped(first_out.size()-1),
@@ -20,13 +20,12 @@ public:
 		first_out(&first_out),
 		tail(&tail),
 		head(&head),
-		time_limit(time_limit) {
+		weight(&weight) {
 		assert(!first_out.empty());
 		assert(first_out.front() == 0);
 		assert(first_out.back() == tail.size());
 		assert(first_out.back() == head.size());
-
-
+		assert(first_out.back() == weight.size());
 	}
 
 	Dijkstra&reset(){
@@ -35,16 +34,18 @@ public:
 		return *this;
 	}
 
-	Dijkstra&reset(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head){
+	Dijkstra&reset(const std::vector<unsigned>&first_out, const std::vector<unsigned>&tail, const std::vector<unsigned>&head, const std::vector<unsigned>&weight){
 		assert(!first_out.empty());
 		assert(first_out.front() == 0);
 		assert(first_out.back() == tail.size());
 		assert(first_out.back() == head.size());
+		assert(first_out.back() == weight.size());
 
 		if(this->first_out != nullptr && first_out.size() == this->first_out->size()){
 			this->first_out = &first_out;
 			this->head = &head;
 			this->tail = &tail;
+			this->weight = &weight;
 			queue.clear();
 			was_popped.reset_all();
 			return *this;
@@ -52,6 +53,7 @@ public:
 			this->first_out = &first_out;
 			this->head = &head;
 			this->tail = &tail;
+			this->weight = &weight;
 			tentative_distance.resize(first_out.size()-1);
 			predecessor_arc.resize(first_out.size()-1);
 			was_popped = TimestampFlags(first_out.size()-1);
@@ -82,8 +84,7 @@ public:
 		unsigned distance;
 	};
 
-	template<class GetWeightFunc>
-	SettleResult settle(const GetWeightFunc&get_weight){
+	SettleResult settle(const unsigned time_limit = 0){
 		assert(!is_finished());
 
 		auto p = queue.pop();
@@ -95,7 +96,7 @@ public:
 
 		for(unsigned a=(*first_out)[p.id]; a<(*first_out)[p.id+1]; ++a){
 			if(!was_popped.is_set((*head)[a])){
-				unsigned w = get_weight(a, p.key);
+				unsigned w = (*weight)[a];
 				if(w < inf_weight){
 					if(queue.contains_id((*head)[a])){
 						if(queue.decrease_key({(*head)[a], p.key + w})){
@@ -156,26 +157,12 @@ private:
 
 	TimestampFlags was_popped;
 	MinIDQueue queue;
-	unsigned time_limit;
 
 	const std::vector<unsigned>*first_out;
 	const std::vector<unsigned>*tail;
 	const std::vector<unsigned>*head;
-};
-
-class ScalarGetWeight{
-public:
-	explicit ScalarGetWeight(const std::vector<unsigned>&weight):weight(&weight){}
-
-	unsigned operator()(unsigned arc, unsigned departure_time)const{
-		(void)departure_time;
-		return (*weight)[arc];
-	}
-
-private:
 	const std::vector<unsigned>*weight;
 };
 
 }
-
 #endif
