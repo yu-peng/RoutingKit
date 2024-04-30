@@ -51,7 +51,7 @@ int main(int argc, char*argv[]){
 		minstd_rand gen;
 		uniform_int_distribution<unsigned>node_dist(0, node_count-isolated_node_count-1);
 
-		Dijkstra dij(first_out, tail, head, weight);
+		Dijkstra dij(first_out, tail, head);
 		EXPECT(dij.is_finished());
 		for(unsigned test_num=0; test_num < test_count; ++test_num){
 			vector<unsigned>dist(node_count, inf_weight);
@@ -61,7 +61,7 @@ int main(int argc, char*argv[]){
 			dij.reset().add_source(source_node, source_time);
 
 			while(!dij.is_finished()){
-				auto ret = dij.settle();
+				auto ret = dij.settle(ScalarGetWeight(weight));
 				EXPECT_CMP(ret.node, !=, isolated_node1);
 				EXPECT_CMP(ret.node, !=, isolated_node2);
 				EXPECT_CMP(ret.node, <, node_count);
@@ -134,14 +134,14 @@ int main(int argc, char*argv[]){
 		}
 
 		{
-			dij.reset(first_out, tail, head, weight).add_source(isolated_node1);
+			dij.reset(first_out, tail, head).add_source(isolated_node1);
 			EXPECT(!dij.is_finished());
-			auto r1 = dij.settle();
+			auto r1 = dij.settle(ScalarGetWeight(weight));
 			EXPECT_CMP(r1.node, ==, isolated_node1);
 			EXPECT_CMP(r1.distance, ==, 0);
 			
 			EXPECT(!dij.is_finished());
-			auto r2 = dij.settle();
+			auto r2 = dij.settle(ScalarGetWeight(weight));
 			EXPECT_CMP(r2.node, ==, isolated_node2);
 			EXPECT_CMP(r2.distance, ==, 0);
 			
@@ -151,12 +151,12 @@ int main(int argc, char*argv[]){
 		{
 			dij.reset().add_source(isolated_node2);
 			EXPECT(!dij.is_finished());
-			auto r1 = dij.settle();
+			auto r1 = dij.settle(ScalarGetWeight(weight));
 			EXPECT_CMP(r1.node, ==, isolated_node2);
 			EXPECT_CMP(r1.distance, ==, 0);
 			
 			EXPECT(!dij.is_finished());
-			auto r2 = dij.settle();
+			auto r2 = dij.settle(ScalarGetWeight(weight));
 			EXPECT_CMP(r2.node, ==, isolated_node1);
 			EXPECT_CMP(r2.distance, ==, 42);
 			
