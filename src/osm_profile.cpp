@@ -443,6 +443,9 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::unorde
 
 
 OSMWayDirectionCategory get_osm_car_direction_category(uint64_t osm_way_id, const TagMap&tags, std::function<void(const std::string&)>log_message){
+	if (osm_way_id == 875901608) {
+		return OSMWayDirectionCategory::only_open_forwards;
+	}
 	const char
 		*oneway = tags["oneway"],
 		*junction = tags["junction"],
