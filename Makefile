@@ -12,7 +12,7 @@ ifeq ($(OS), Linux) # Linux
 else ifeq ($(OS), Darwin) # macOS
 	OMP_CFLAGS=-Xclang -fopenmp
 	OMP_LDFLAGS=-lomp
-	OUTPUT=-dynamiclib -o lib/libroutingkit.dylib
+	OUTPUT=-dynamiclib -install_name /usr/local/lib/libroutingkit.dylib -o lib/libroutingkit.dylib
 else
     PLATFORM := unknown
     $(error Unsupported platform)
