@@ -74,6 +74,10 @@ public:
 
         auto p = queue.pop();
         was_popped[p.id] = true;
+        // make this point invalid if it exceeds 2 minutes
+        if (p.key > time_limit + 120) {
+            return invalid_id;
+        }
         if (p.key > time_limit) {
             return p.id;
         }
