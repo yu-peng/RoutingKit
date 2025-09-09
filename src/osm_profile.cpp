@@ -171,7 +171,6 @@ bool is_osm_way_used_by_pedestrians(uint64_t osm_way_id, const TagMap&tags, std:
 		str_eq(highway, "secondary_link") ||
 		str_eq(highway, "tertiary_link") ||
 		str_eq(highway, "living_street") ||
-		str_eq(highway, "residential") ||
 		str_eq(highway, "track") ||
 		str_eq(highway, "bicycle_road") ||
 		str_eq(highway, "path") ||
@@ -311,7 +310,6 @@ unsigned get_osm_way_pedestrian_speed(uint64_t osm_way_id, const TagMap&tags, st
 			str_eq(highway, "secondary") ||
 			str_eq(highway, "tertiary") ||
 			str_eq(highway, "unclassified") ||
-			str_eq(highway, "residential") ||
 			str_eq(highway, "service") ||
 			str_eq(highway, "secondary_link") ||
 			str_eq(highway, "tertiary_link") ||
@@ -397,7 +395,6 @@ bool is_osm_way_used_by_cars(uint64_t osm_way_id, const TagMap&tags, std::unorde
 		str_eq(highway, "tertiary_link") ||
 		str_eq(highway, "motorway_junction") ||
 		str_eq(highway, "living_street") ||
-		str_eq(highway, "residential") ||
 		// str_eq(highway, "track") || /* ENG-2790, track is not appropriate for buses*/
 		str_eq(highway, "ferry")
 	)
@@ -779,7 +776,6 @@ bool is_osm_way_used_by_bicycles(uint64_t osm_way_id, const TagMap&tags, std::fu
 		str_eq(highway, "secondary_link") ||
 		str_eq(highway, "tertiary_link") ||
 		str_eq(highway, "living_street") ||
-		str_eq(highway, "residential") ||
 		str_eq(highway, "track") ||
 		str_eq(highway, "bicycle_road") ||
 		str_eq(highway, "primary") ||
